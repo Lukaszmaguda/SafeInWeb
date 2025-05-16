@@ -23,7 +23,6 @@ model Quiz {
   title       String
   description String
   questions   Question[]
-
   QuizResult QuizResult[]
 }
 
