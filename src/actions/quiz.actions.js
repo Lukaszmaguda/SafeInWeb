@@ -192,3 +192,43 @@ export async function createQuiz(quizData) {
     throw error;
   }
 }
+
+// Dodaj tę funkcję do quiz.actions.js
+export async function getUserQuizResults(clerkId) {
+  try {
+    if (!clerkId) return {};
+
+    // Znajdź użytkownika po clerkId
+    const user = await prisma.user.findUnique({
+      where: { clerkId: clerkId },
+    });
+
+    if (!user) return {};
+
+    // Pobierz wszystkie wyniki użytkownika
+    const results = await prisma.quizResult.findMany({
+      where: { userId: user.id },
+      include: {
+        quiz: {
+          select: { slug: true },
+        },
+      },
+    });
+
+    // Przekształć do obiektu slug -> wynik
+    const resultsMap = {};
+    results.forEach((result) => {
+      resultsMap[result.quiz.slug] = {
+        score: result.score,
+        total: result.totalQuestions,
+        percentage: Math.round((result.score / result.totalQuestions) * 100),
+        completedAt: result.completedAt,
+      };
+    });
+
+    return resultsMap;
+  } catch (error) {
+    console.error("Error fetching user quiz results:", error);
+    return {};
+  }
+}
