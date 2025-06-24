@@ -22,6 +22,7 @@ export default function Navbar() {
     { title: "Materiały", path: "/educational_materials" },
     { title: "O projekcie", path: "/about" },
     { title: "Nauka silnych haseł", path: "/password-game" },
+    { title: "Phishing", path: "/phishing" },
   ];
 
   return (

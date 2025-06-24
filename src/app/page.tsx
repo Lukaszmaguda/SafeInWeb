@@ -133,6 +133,13 @@ export default async function Home() {
                   </Button>
                 </Link>
               </SignedIn>
+              <SignedIn>
+                <Link href="/phishing">
+                  <Button size="lg" className="px-8 py-4 text-lg">
+                    Naucz się jak radzić sobie z phishingiem
+                  </Button>
+                </Link>
+              </SignedIn>
             </div>
           </div>
         </div>
