@@ -1,17 +1,29 @@
 "use client";
 
-import { useState, useEffect, SetStateAction } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Eye, EyeOff, RefreshCw, Trophy, Target } from "lucide-react";
+import {
+  Eye,
+  EyeOff,
+  RefreshCw,
+  Trophy,
+  Target,
+  Shield,
+  ShieldCheck,
+  ShieldAlert,
+  ShieldX,
+  AlertTriangle,
+  Lock,
+} from "lucide-react";
 
 interface PasswordStrength {
   score: number;
   level: string;
-  emoji: string;
+  icon: React.ReactNode;
   color: string;
   bgColor: string;
   message: string;
@@ -28,7 +40,7 @@ export default function PasswordGame({ userId }: PasswordGameProps) {
   const [strength, setStrength] = useState<PasswordStrength>({
     score: 0,
     level: "Brak hasła",
-    emoji: "😴",
+    icon: <Shield className="h-16 w-16" />,
     color: "text-gray-500",
     bgColor: "bg-gray-100",
     message: "Wpisz hasło, aby rozpocząć!",
@@ -42,7 +54,7 @@ export default function PasswordGame({ userId }: PasswordGameProps) {
       return {
         score: 0,
         level: "Brak hasła",
-        emoji: "😴",
+        icon: <Shield className="h-16 w-16" />,
         color: "text-gray-500",
         bgColor: "bg-gray-100",
         message: "Wpisz hasło, aby rozpocząć!",
@@ -109,55 +121,55 @@ export default function PasswordGame({ userId }: PasswordGameProps) {
       tips.push("Unikaj popularnych wzorców (123, abc, qwerty)");
     }
 
-    // Określ poziom
+    // Określ poziom z konsystentnymi ikonami
     if (score >= 80) {
       return {
         score,
         level: "Bardzo silne",
-        emoji: "🤩",
+        icon: <ShieldCheck className="h-16 w-16 text-green-600" />,
         color: "text-green-600",
         bgColor: "bg-green-100",
-        message: "Wow! To hasło jest niesamowite! 🎉",
-        tips: ["🏆 Perfekcyjne hasło! Gratulacje!"],
+        message: "Doskonale! Twoje hasło jest jak fort Knox!",
+        tips: ["Perfekcyjne hasło! Gratulacje!"],
       };
     } else if (score >= 60) {
       return {
         score,
         level: "Silne",
-        emoji: "😊",
+        icon: <Lock className="h-16 w-16 text-blue-600" />,
         color: "text-blue-600",
         bgColor: "bg-blue-100",
-        message: "Świetnie! To hasło jest bardzo bezpieczne!",
-        tips: tips.length > 0 ? tips : ["✨ Prawie idealne!"],
+        message: "Świetnie! Twoje hasło jest dobrze chronione!",
+        tips: tips.length > 0 ? tips : ["Prawie idealne!"],
       };
     } else if (score >= 40) {
       return {
         score,
         level: "Średnie",
-        emoji: "😐",
+        icon: <ShieldAlert className="h-16 w-16 text-yellow-600" />,
         color: "text-yellow-600",
         bgColor: "bg-yellow-100",
-        message: "Niezłe, ale można lepiej...",
+        message: "Niezłe, ale hakerzy mogą to złamać...",
         tips,
       };
     } else if (score >= 20) {
       return {
         score,
         level: "Słabe",
-        emoji: "😟",
+        icon: <AlertTriangle className="h-16 w-16 text-orange-600" />,
         color: "text-orange-600",
         bgColor: "bg-orange-100",
-        message: "Hmm, to hasło potrzebuje wzmocnienia",
+        message: "Uwaga! To hasło jest podatne na ataki!",
         tips,
       };
     } else {
       return {
         score,
         level: "Bardzo słabe",
-        emoji: "😰",
+        icon: <ShieldX className="h-16 w-16 text-red-600" />,
         color: "text-red-600",
         bgColor: "bg-red-100",
-        message: "Ojej! To hasło jest bardzo niebezpieczne!",
+        message: "Alarm! To hasło to zaproszenie dla hakerów!",
         tips,
       };
     }
@@ -230,7 +242,9 @@ export default function PasswordGame({ userId }: PasswordGameProps) {
       {/* Animacja celebracji */}
       {showCelebration && (
         <div className="fixed inset-0 pointer-events-none z-50 flex items-center justify-center">
-          <div className="text-8xl animate-bounce">🎉</div>
+          <div className="animate-bounce">
+            <ShieldCheck className="h-24 w-24 text-green-600" />
+          </div>
         </div>
       )}
 
@@ -240,14 +254,14 @@ export default function PasswordGame({ userId }: PasswordGameProps) {
       >
         <CardHeader className="text-center">
           <div className="flex items-center justify-center gap-4 mb-4">
-            <div className="text-8xl animate-bounce transition-all duration-10">
-              {strength.emoji}
+            <div className="animate-pulse transition-all duration-10">
+              {strength.icon}
             </div>
           </div>
           <CardTitle
             className={`text-2xl ${strength.color} transition-colors duration-300`}
           >
-            Strażnik Haseł: {strength.level}
+            Strażnik Bezpieczeństwa: {strength.level}
           </CardTitle>
           <p className={`${strength.color} font-medium`}>{strength.message}</p>
         </CardHeader>
@@ -259,9 +273,7 @@ export default function PasswordGame({ userId }: PasswordGameProps) {
               type={showPassword ? "text" : "password"}
               placeholder="Wpisz swoje hasło..."
               value={password}
-              onChange={(e: { target: { value: SetStateAction<string> } }) =>
-                setPassword(e.target.value)
-              }
+              onChange={(e) => setPassword(e.target.value)}
               className="pr-12 text-lg h-12"
             />
             <Button
@@ -282,7 +294,10 @@ export default function PasswordGame({ userId }: PasswordGameProps) {
           {/* Pasek siły */}
           <div className="space-y-2">
             <div className="flex justify-between items-center">
-              <span className="text-sm font-medium">Siła hasła:</span>
+              <span className="text-sm font-medium flex items-center gap-2">
+                <Lock className="h-4 w-4" />
+                Poziom ochrony:
+              </span>
               <Badge className={strength.color}>{strength.score}/100</Badge>
             </div>
             <Progress value={strength.score} className="h-3" />
@@ -292,7 +307,7 @@ export default function PasswordGame({ userId }: PasswordGameProps) {
           <div className="flex gap-2">
             <Button onClick={generateStrongPassword} className="flex-1">
               <RefreshCw className="mr-2 h-4 w-4" />
-              Wygeneruj silne hasło
+              Wygeneruj bezpieczne hasło
             </Button>
             <Button onClick={resetGame} variant="outline">
               <Target className="mr-2 h-4 w-4" />
@@ -302,10 +317,14 @@ export default function PasswordGame({ userId }: PasswordGameProps) {
         </CardContent>
       </Card>
 
+      {/* Wskazówki */}
       {strength.tips.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg"> Wskazówki do poprawy</CardTitle>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5" />
+              Wskazówki bezpieczeństwa
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <ul className="space-y-2">
@@ -325,7 +344,7 @@ export default function PasswordGame({ userId }: PasswordGameProps) {
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
               <Trophy className="h-5 w-5 text-yellow-500" />
-              Twoje osiągnięcia
+              Twoje osiągnięcia w cyberbezpieczeństwie
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -337,8 +356,8 @@ export default function PasswordGame({ userId }: PasswordGameProps) {
                   className="bg-yellow-100 text-yellow-800"
                 >
                   {achievement === "długie" && "Długie hasło (12+ znaków)"}
-                  {achievement === "perfekcyjne" && " Perfekcyjne hasło!"}
-                  {achievement === "specjalne" && "Użyto znaków specjalnych"}
+                  {achievement === "perfekcyjne" && "Mistrz bezpieczeństwa!"}
+                  {achievement === "specjalne" && "Ekspert znaków specjalnych"}
                 </Badge>
               ))}
             </div>
@@ -349,30 +368,35 @@ export default function PasswordGame({ userId }: PasswordGameProps) {
       {/* Edukacyjna sekcja */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">
-            Dlaczego silne hasła są ważne?
+          <CardTitle className="text-lg flex items-center gap-2">
+            <Shield className="h-5 w-5" />
+            Dlaczego silne hasła chronią Cię przed hakerami?
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <h4 className="font-semibold text-green-600">
-                ✅ Dobre praktyki:
+              <h4 className="font-semibold text-green-600 flex items-center gap-2">
+                <ShieldCheck className="h-4 w-4" />
+                Ochrona przed atakami:
               </h4>
               <ul className="text-sm space-y-1 text-muted-foreground">
-                <li>• Minimum 12 znaków</li>
-                <li>• Mieszanka liter, cyfr i symboli</li>
+                <li>• Minimum 12 znaków - trudne do złamania</li>
+                <li>• Mieszanka typów znaków - większa entropia</li>
                 <li>• Unikalne dla każdego konta</li>
                 <li>• Używaj menedżera haseł</li>
               </ul>
             </div>
             <div className="space-y-2">
-              <h4 className="font-semibold text-red-600">❌ Czego unikać:</h4>
+              <h4 className="font-semibold text-red-600 flex items-center gap-2">
+                <ShieldX className="h-4 w-4" />
+                Pułapki hakerów:
+              </h4>
               <ul className="text-sm space-y-1 text-muted-foreground">
-                <li>• Danych osobowych</li>
-                <li>• Popularnych wzorców</li>
-                <li>• Słów ze słownika</li>
-                <li>• Tego samego hasła wszędzie</li>
+                <li>• Ataki słownikowe na proste hasła</li>
+                <li>• Wykorzystanie danych osobowych</li>
+                <li>• Ataki brute-force na krótkie hasła</li>
+                <li>• Wycieki z innych serwisów</li>
               </ul>
             </div>
           </div>
