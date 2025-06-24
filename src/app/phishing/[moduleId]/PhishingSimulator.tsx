@@ -13,6 +13,9 @@ import {
   Eye,
   Clock,
   User,
+  Globe,
+  Smartphone,
+  Phone,
 } from "lucide-react";
 import {
   getPhishingScenarios,
@@ -23,9 +26,18 @@ interface PhishingScenario {
   id: string;
   type: string;
   content: {
+    // Email fields
     subject?: string;
     sender?: string;
     body?: string;
+    // Website fields
+    url?: string;
+    pageTitle?: string;
+    elements?: string[];
+    // SMS fields
+    phone?: string;
+    message?: string;
+    time?: string;
   };
   isPhishing: boolean;
   redFlags: string[];
@@ -93,6 +105,118 @@ export default function PhishingSimulator({
   const currentScenarioData = scenarios[currentScenario];
   const progress = ((currentScenario + 1) / scenarios.length) * 100;
 
+  const getModuleIcon = () => {
+    switch (moduleId) {
+      case "email-phishing":
+        return <Mail className="h-5 w-5" />;
+      case "website-phishing":
+        return <Globe className="h-5 w-5" />;
+      case "sms-phishing":
+        return <Smartphone className="h-5 w-5" />;
+      case "voice-phishing":
+        return <Phone className="h-5 w-5" />;
+      default:
+        return <Mail className="h-5 w-5" />;
+    }
+  };
+
+  const renderScenarioContent = () => {
+    switch (moduleId) {
+      case "email-phishing":
+        return (
+          <div className="bg-gray-50 rounded-lg p-4 border">
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 text-sm">
+                <User className="h-4 w-4" />
+                <span className="font-medium">Od:</span>
+                <span>{currentScenarioData.content.sender}</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm">
+                <Mail className="h-4 w-4" />
+                <span className="font-medium">Temat:</span>
+                <span>{currentScenarioData.content.subject}</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm">
+                <Clock className="h-4 w-4" />
+                <span className="font-medium">Data:</span>
+                <span>{new Date().toLocaleString()}</span>
+              </div>
+            </div>
+            <hr className="my-4" />
+            <div className="whitespace-pre-line text-sm">
+              {currentScenarioData.content.body}
+            </div>
+          </div>
+        );
+
+      case "website-phishing":
+        return (
+          <div className="bg-gray-50 rounded-lg p-4 border">
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 text-sm">
+                <Globe className="h-4 w-4" />
+                <span className="font-medium">URL:</span>
+                <span className="font-mono bg-white px-2 py-1 rounded border">
+                  {currentScenarioData.content.url}
+                </span>
+              </div>
+              <div className="flex items-center gap-2 text-sm">
+                <span className="font-medium">Tytuł strony:</span>
+                <span>{currentScenarioData.content.pageTitle}</span>
+              </div>
+            </div>
+            <hr className="my-4" />
+            <div className="space-y-3">
+              <p className="text-sm font-medium">Zawartość strony:</p>
+              <p className="text-sm">{currentScenarioData.content.body}</p>
+              {currentScenarioData.content.elements && (
+                <div>
+                  <p className="text-sm font-medium mb-2">
+                    Elementy na stronie:
+                  </p>
+                  <ul className="text-sm space-y-1">
+                    {currentScenarioData.content.elements.map(
+                      (element, index) => (
+                        <li key={index} className="flex items-center gap-2">
+                          <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
+                          {element}
+                        </li>
+                      )
+                    )}
+                  </ul>
+                </div>
+              )}
+            </div>
+          </div>
+        );
+
+      case "sms-phishing":
+        return (
+          <div className="bg-gray-50 rounded-lg p-4 border">
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 text-sm">
+                <Smartphone className="h-4 w-4" />
+                <span className="font-medium">Od:</span>
+                <span>{currentScenarioData.content.phone}</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm">
+                <Clock className="h-4 w-4" />
+                <span className="font-medium">Czas:</span>
+                <span>{currentScenarioData.content.time}</span>
+              </div>
+            </div>
+            <hr className="my-4" />
+            <div className="bg-blue-500 text-white p-3 rounded-lg max-w-xs">
+              <p className="text-sm">{currentScenarioData.content.message}</p>
+            </div>
+          </div>
+        );
+
+      default:
+        return null;
+    }
+  };
+
   const handleAnswer = async (isPhishing: boolean) => {
     const newAnswers = [...userAnswers, isPhishing];
     setUserAnswers(newAnswers);
@@ -114,7 +238,6 @@ export default function PhishingSimulator({
     } else {
       setIsCompleted(true);
 
-      // Zapisz wyniki
       if (clerkId) {
         try {
           const results = scenarios.map((scenario, index) => ({
@@ -216,7 +339,7 @@ export default function PhishingSimulator({
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Mail className="h-5 w-5" />
+            {getModuleIcon()}
             <CardTitle>Czy to phishing?</CardTitle>
             <Badge variant="outline">
               {currentScenarioData.difficulty === "easy" && "Łatwy"}
@@ -226,31 +349,7 @@ export default function PhishingSimulator({
           </div>
         </CardHeader>
         <CardContent className="space-y-6">
-          <div className="bg-gray-50 rounded-lg p-4 border">
-            <div className="space-y-3">
-              <div className="flex items-center gap-2 text-sm">
-                <User className="h-4 w-4" />
-                <span className="font-medium">Od:</span>
-                <span>{currentScenarioData.content.sender}</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm">
-                <Mail className="h-4 w-4" />
-                <span className="font-medium">Temat:</span>
-                <span>{currentScenarioData.content.subject}</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm">
-                <Clock className="h-4 w-4" />
-                <span className="font-medium">Data:</span>
-                <span>{new Date().toLocaleString()}</span>
-              </div>
-            </div>
-
-            <hr className="my-4" />
-
-            <div className="whitespace-pre-line text-sm">
-              {currentScenarioData.content.body}
-            </div>
-          </div>
+          {renderScenarioContent()}
 
           {!showResult && (
             <div className="flex gap-4 justify-center">
@@ -300,7 +399,7 @@ export default function PhishingSimulator({
                 <p className="text-sm">
                   {currentScenarioData.isPhishing
                     ? "To był phishing!"
-                    : "To był bezpieczny email."}
+                    : "To było bezpieczne."}
                 </p>
               </div>
 

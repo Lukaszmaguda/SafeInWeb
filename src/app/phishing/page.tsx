@@ -80,19 +80,9 @@ export default async function PhishingPage() {
 
   return (
     <div className="container mx-auto px-4 py-12">
-      <div className="mb-8">
-        <Link
-          href="/"
-          className="flex items-center text-muted-foreground hover:text-foreground transition-colors"
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Powrót do strony głównej
-        </Link>
-      </div>
-
       <div className="flex flex-col items-center gap-6 text-center mb-12">
         <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl">
-          🎯 Centrum Anty-Phishing
+          Centrum Anty-Phishing
         </h1>
         <p className="max-w-[700px] text-lg text-muted-foreground">
           Naucz się rozpoznawać i unikać ataków phishingowych przez praktyczne
@@ -172,9 +162,6 @@ export default async function PhishingPage() {
                 <div className="flex justify-between items-center mb-4">
                   <span className="text-sm text-muted-foreground">
                     Poziom: {module.difficulty}
-                  </span>
-                  <span className="text-sm text-muted-foreground">
-                    {module.scenarios} scenariuszy
                   </span>
                 </div>
                 <Link href={`/phishing/${module.id}`}>
