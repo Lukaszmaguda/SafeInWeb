@@ -16,6 +16,8 @@ model User {
   image       String?  
   quizResults QuizResult[]
   userAnswers UserAnswer[]
+  PhishingResult PhishingResult[]
+  PhishingModuleResult PhishingModuleResult[]
 }
 
 model Quiz {
@@ -77,4 +79,44 @@ model UserAnswer {
   quizResultId     String
   isCorrect        Boolean
   answeredAt       DateTime   @default(now())
+}
+
+model PhishingScenario {
+  id          String       @id @default(cuid())
+  moduleId    String       // np. "email-phishing", "website-phishing"
+  title       String
+  description String
+  content     Json         // treść scenariusza (email, sms, itp.)
+  isPhishing  Boolean
+  redFlags    String[]
+  explanation String
+  difficulty  String
+  order       Int
+  createdAt   DateTime     @default(now())
+  phishingResults PhishingResult[]
+}
+
+model PhishingResult {
+  id          String       @id @default(cuid())
+  user        User         @relation(fields: [userId], references: [id])
+  userId      String
+  scenario    PhishingScenario @relation(fields: [scenarioId], references: [id])
+  scenarioId  String
+  userAnswer  Boolean      // czy użytkownik uznał za phishing
+  isCorrect   Boolean
+  answeredAt  DateTime     @default(now())
+  
+  @@unique([userId, scenarioId])
+}
+
+model PhishingModuleResult {
+  id          String       @id @default(cuid())
+  user        User         @relation(fields: [userId], references: [id])
+  userId      String
+  moduleId    String
+  score       Int
+  totalScenarios Int
+  completedAt DateTime     @default(now())
+  
+  @@unique([userId, moduleId])
 }

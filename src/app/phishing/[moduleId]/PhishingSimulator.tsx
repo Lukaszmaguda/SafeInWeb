@@ -11,168 +11,89 @@ import {
   CheckCircle,
   XCircle,
   Eye,
-  Shield,
   Clock,
   User,
-  Link as LinkIcon,
 } from "lucide-react";
+import {
+  getPhishingScenarios,
+  savePhishingResult,
+} from "@/actions/phishing.actions";
 
 interface PhishingScenario {
   id: string;
-  type: "email" | "website" | "sms" | "voice";
+  type: string;
   content: {
     subject?: string;
     sender?: string;
     body?: string;
-    url?: string;
-    phone?: string;
-    message?: string;
   };
   isPhishing: boolean;
   redFlags: string[];
   explanation: string;
-  difficulty: "easy" | "medium" | "hard";
+  difficulty: string;
 }
 
 interface PhishingSimulatorProps {
   moduleId: string;
-  userId?: string;
+  clerkId?: string;
 }
 
 export default function PhishingSimulator({
   moduleId,
-  userId,
+  clerkId,
 }: PhishingSimulatorProps) {
+  const [scenarios, setScenarios] = useState<PhishingScenario[]>([]);
   const [currentScenario, setCurrentScenario] = useState(0);
   const [userAnswers, setUserAnswers] = useState<boolean[]>([]);
   const [showResult, setShowResult] = useState(false);
   const [showExplanation, setShowExplanation] = useState(false);
   const [score, setScore] = useState(0);
   const [isCompleted, setIsCompleted] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  const scenarios: PhishingScenario[] = [
-    {
-      id: "bank-alert",
-      type: "email",
-      content: {
-        subject: "PILNE: Twoje konto zostało zablokowane!",
-        sender: "security@pkobp-bank.com",
-        body: `Szanowny Kliencie,
+  useEffect(() => {
+    const loadScenarios = async () => {
+      try {
+        const data = await getPhishingScenarios(moduleId);
+        setScenarios(data);
+        setLoading(false);
+      } catch (error) {
+        console.error("Failed to load scenarios:", error);
+        setLoading(false);
+      }
+    };
+    loadScenarios();
+  }, [moduleId]);
 
-Wykryliśmy podejrzaną aktywność na Twoim koncie. Z powodów bezpieczeństwa Twoje konto zostało tymczasowo zablokowane.
+  if (loading) {
+    return (
+      <div className="max-w-4xl mx-auto">
+        <Card>
+          <CardContent className="p-8 text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+            <p className="mt-4">Ładowanie scenariuszy...</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
-Aby odblokować konto, kliknij poniższy link i potwierdź swoje dane w ciągu 24 godzin:
-
-https://pko-bp-secure.verification-center.com/unlock
-
-Jeśli nie podejmiesz działań, Twoje konto zostanie trwale zamknięte.
-
-Z poważaniem,
-Zespół Bezpieczeństwa PKO BP`,
-      },
-      isPhishing: true,
-      redFlags: [
-        "Błędna domena nadawcy (pkobp-bank.com zamiast pkobp.pl)",
-        "Pilność i groźby",
-        "Podejrzany link (nie jest to oficjalna domena banku)",
-        "Prośba o potwierdzenie danych przez link",
-      ],
-      explanation:
-        "To klasyczny przykład phishingu bankowego. Prawdziwy bank nigdy nie prosi o potwierdzenie danych przez email.",
-      difficulty: "easy",
-    },
-    {
-      id: "paypal-invoice",
-      type: "email",
-      content: {
-        subject: "Potwierdzenie płatności PayPal - 2,847.99 PLN",
-        sender: "service@paypal.com",
-        body: `Dziękujemy za płatność PayPal
-
-Szczegóły transakcji:
-Kwota: 2,847.99 PLN
-Odbiorca: TechStore Premium
-Data: ${new Date().toLocaleDateString()}
-
-Jeśli to nie była Twoja transakcja, kliknij tutaj aby anulować:
-https://paypal.com/cancel-transaction/ref=ps847291
-
-Zespół PayPal`,
-      },
-      isPhishing: false,
-      redFlags: [],
-      explanation:
-        "Ten email wygląda podejrzanie przez wysoką kwotę, ale adres nadawcy jest prawidłowy i link prowadzi do oficjalnej domeny PayPal.",
-      difficulty: "medium",
-    },
-    {
-      id: "microsoft-security",
-      type: "email",
-      content: {
-        subject: "Wykryto nietypowe logowanie do Twojego konta Microsoft",
-        sender: "account-security-noreply@accountprotection.microsoft.com",
-        body: `Witaj,
-
-Wykryliśmy logowanie do Twojego konta Microsoft z nowego urządzenia:
-
-Lokalizacja: Warszawa, Polska
-Urządzenie: Windows 10 PC
-Czas: ${new Date().toLocaleString()}
-
-Jeśli to byłeś Ty, możesz zignorować tę wiadomość.
-
-Jeśli to nie byłeś Ty, zabezpiecz swoje konto:
-https://account.microsoft.com/security
-
-Zespół Microsoft`,
-      },
-      isPhishing: false,
-      redFlags: [],
-      explanation:
-        "To prawdziwy email od Microsoft. Adres nadawcy jest oficjalny, a link prowadzi do prawdziwej strony Microsoft.",
-      difficulty: "hard",
-    },
-    {
-      id: "amazon-prize",
-      type: "email",
-      content: {
-        subject: "Gratulacje! Wygrałeś iPhone 15 Pro!",
-        sender: "prizes@amazon-rewards.net",
-        body: `Drogi Kliencie Amazon,
-
-Gratulujemy! Zostałeś wybrany jako zwycięzca naszej miesięcznej loterii!
-
-Twoja nagroda: iPhone 15 Pro (wartość 5,999 PLN)
-
-Aby odebrać nagrodę, wypełnij formularz w ciągu 48 godzin:
-https://amazon-rewards.net/claim-prize?user=winner2024
-
-Wymagane informacje:
-- Pełne imię i nazwisko  
-- Adres zamieszkania
-- Numer telefonu
-- Dane karty kredytowej (do weryfikacji tożsamości)
-
-Zespół Amazon Rewards`,
-      },
-      isPhishing: true,
-      redFlags: [
-        "Fałszywa domena (amazon-rewards.net zamiast amazon.pl)",
-        "Nierealistyczna nagroda bez udziału w konkursie",
-        "Prośba o dane karty kredytowej",
-        "Presja czasowa (48 godzin)",
-        "Ogólne zwroty bez personalizacji",
-      ],
-      explanation:
-        "Klasyczny phishing z nagrodą. Amazon nigdy nie organizuje takich losowań przez email i nie prosi o dane karty.",
-      difficulty: "easy",
-    },
-  ];
+  if (scenarios.length === 0) {
+    return (
+      <div className="max-w-4xl mx-auto">
+        <Card>
+          <CardContent className="p-8 text-center">
+            <p>Brak dostępnych scenariuszy dla tego modułu.</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   const currentScenarioData = scenarios[currentScenario];
   const progress = ((currentScenario + 1) / scenarios.length) * 100;
 
-  const handleAnswer = (isPhishing: boolean) => {
+  const handleAnswer = async (isPhishing: boolean) => {
     const newAnswers = [...userAnswers, isPhishing];
     setUserAnswers(newAnswers);
 
@@ -185,13 +106,28 @@ Zespół Amazon Rewards`,
     setShowExplanation(true);
   };
 
-  const nextScenario = () => {
+  const nextScenario = async () => {
     if (currentScenario < scenarios.length - 1) {
       setCurrentScenario(currentScenario + 1);
       setShowResult(false);
       setShowExplanation(false);
     } else {
       setIsCompleted(true);
+
+      // Zapisz wyniki
+      if (clerkId) {
+        try {
+          const results = scenarios.map((scenario, index) => ({
+            scenarioId: scenario.id,
+            userAnswer: userAnswers[index],
+            correctAnswer: scenario.isPhishing,
+          }));
+
+          await savePhishingResult(clerkId, moduleId, results);
+        } catch (error) {
+          console.error("Failed to save phishing result:", error);
+        }
+      }
     }
   };
 
@@ -265,7 +201,6 @@ Zespół Amazon Rewards`,
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      {/* Pasek postępu */}
       <div className="space-y-2">
         <div className="flex justify-between items-center">
           <span className="text-sm font-medium">
@@ -278,7 +213,6 @@ Zespół Amazon Rewards`,
         <Progress value={progress} className="w-full" />
       </div>
 
-      {/* Główna karta scenariusza */}
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
@@ -292,7 +226,6 @@ Zespół Amazon Rewards`,
           </div>
         </CardHeader>
         <CardContent className="space-y-6">
-          {/* Email content */}
           <div className="bg-gray-50 rounded-lg p-4 border">
             <div className="space-y-3">
               <div className="flex items-center gap-2 text-sm">

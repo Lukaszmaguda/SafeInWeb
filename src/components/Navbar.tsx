@@ -19,10 +19,10 @@ export default function Navbar() {
   const routes = [
     { title: "Strona główna", path: "/" },
     { title: "Quizy", path: "/quizy" },
+    { title: "Anti-Phishing", path: "/phishing" },
+    { title: "Nauka silnych haseł", path: "/password-game" },
     { title: "Materiały", path: "/educational_materials" },
     { title: "O projekcie", path: "/about" },
-    { title: "Nauka silnych haseł", path: "/password-game" },
-    { title: "Phishing", path: "/phishing" },
   ];
 
   return (
