@@ -136,10 +136,6 @@ export default async function QuizyPage() {
                   <Award className="h-4 w-4" />
                   <span>Poziom: {quiz.difficulty}</span>
                 </div>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
-                  <Clock className="h-4 w-4" />
-                  <span>Czas: {quiz.time}</span>
-                </div>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Brain className="h-4 w-4" />
                   <span>Pytań: {quiz.questionsCount}</span>
