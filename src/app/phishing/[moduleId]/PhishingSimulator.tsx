@@ -67,7 +67,15 @@ export default function PhishingSimulator({
     const loadScenarios = async () => {
       try {
         const data = await getPhishingScenarios(moduleId);
-        setScenarios(data);
+        setScenarios(
+          data.map((scenario: any) => ({
+            ...scenario,
+            content:
+              scenario.content && typeof scenario.content === "object"
+                ? scenario.content
+                : {},
+          }))
+        );
         setLoading(false);
       } catch (error) {
         console.error("Failed to load scenarios:", error);
