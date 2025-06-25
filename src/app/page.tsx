@@ -149,7 +149,7 @@ export default async function Home() {
         <div className="container px-4 md:px-6 mx-auto">
           <div className="flex flex-col items-center justify-center gap-4 text-center">
             <p className="text-base text-muted-foreground">
-              © {new Date().getFullYear()} Safer in Web - Łukasz Maguda.
+              © {new Date().getFullYear()} Safe in Web - Łukasz Maguda.
               Wszystkie prawa zastrzeżone.
             </p>
           </div>

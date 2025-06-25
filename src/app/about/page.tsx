@@ -30,7 +30,7 @@ export default async function OProjekciePage() {
 		<div className="container mx-auto px-4 py-12">
 			<div className="flex flex-col items-center gap-6 text-center mb-12">
 				<h1 className="text-4xl font-bold tracking-tighter sm:text-5xl">
-					O projekcie Safer in Web
+					O projekcie Safe in Web
 				</h1>
 				<p className="max-w-[800px] text-lg text-muted-foreground">
 					Aplikacja edukacyjna o bezpieczeństwie w sieci stworzona
@@ -42,7 +42,7 @@ export default async function OProjekciePage() {
 				<div>
 					<h2 className="text-3xl font-bold mb-6">Cel projektu</h2>
 					<p className="text-lg mb-4">
-						Projekt "Safer in Web" powstał jako część pracy
+						Projekt "Safe in Web" powstał jako część pracy
 						licencjackiej, której celem jest stworzenie efektywnego
 						narzędzia edukacyjnego zwiększającego świadomość
 						użytkowników w zakresie bezpieczeństwa w internecie.
@@ -189,7 +189,7 @@ export default async function OProjekciePage() {
 					<p className="mb-6 text-muted-foreground">
 						Poniżej znajduje się lista źródeł i materiałów, które
 						zostały wykorzystane podczas tworzenia treści
-						edukacyjnych w aplikacji Safer in Web.
+						edukacyjnych w aplikacji Safe in Web.
 					</p>
 
 					<Accordion type="single" collapsible className="w-full">
