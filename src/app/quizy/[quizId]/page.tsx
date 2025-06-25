@@ -90,7 +90,16 @@ export default async function QuizPage({
         )}
       </div>
 
-      <QuizComponent quiz={quiz} clerkId={user?.id} />
+      <QuizComponent
+        quiz={{
+          ...quiz,
+          questions: quiz.questions.map((q: any) => ({
+            ...q,
+            correctOptionId: q.correctOptionId ?? "",
+          })),
+        }}
+        clerkId={user?.id}
+      />
     </div>
   );
 }
